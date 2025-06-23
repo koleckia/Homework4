@@ -28,8 +28,46 @@ A side-effect functions don't return the modified agrument i.e. print(), write_c
 ###5. Why can you name a variable sd in a function and not cause any issues with the sd function?
 
 
-
 ##Task 2: Writing R functinos 
+
+###1. Write a basic function (call it getRMSE()) that takes in a vector of responses and a vector of predictions and outputs the RMSE.If a value is missing for the vector of responses (i.e. an NA is present), allow for additional arguments to the mean() function (elipses) that removes the NA values in the computation.
+
+
+
+```{r}
+getRMSE<-function(n, resp, pred,...){
+SE <- (resp-pred)^2
+mean <- mean(SE,...)
+RMSE <- sqrt(mean)
+return(RMSE)
+}
+```
+
+###2. Test your RMSE function using this data. Repeat after replacing two of the response values with missing values (NA_real_).
+
+```{r}
+#Without Missing Values 
+set.seed(10)
+n <- 100
+x <- runif(n)
+resp <- 3 + 10*x + rnorm(n)
+pred <- predict(lm(resp ~ x), data.frame(x))
+getRMSE(n,resp,pred)
+
+#With Missing Values
+set.seed(10)
+n <- 100
+x <- runif(n)
+resp2 <- 3 + 10*x + rnorm(n)
+pred2 <- predict(lm(resp ~ x), data.frame(x))
+getRMSE(n,resp,pred)
+random_na <- sample(length(resp2),2)
+resp2[random_na]<- NA_real_
+pred2 <- predict(lm(resp2 ~ x), data.frame(x))
+getRMSE(n,resp2,pred2)
+getRMSE(n,resp2,pred2,na.rm = TRUE)
+```
+
 
 ##Task 3: Querying an API and tidy-style function 
 
