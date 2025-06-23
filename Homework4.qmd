@@ -32,8 +32,6 @@ A side-effect functions don't return the modified agrument i.e. print(), write_c
 
 ###1. Write a basic function (call it getRMSE()) that takes in a vector of responses and a vector of predictions and outputs the RMSE.If a value is missing for the vector of responses (i.e. an NA is present), allow for additional arguments to the mean() function (elipses) that removes the NA values in the computation.
 
-
-
 ```{r}
 getRMSE<-function(n, resp, pred,...){
 SE <- (resp-pred)^2
@@ -68,8 +66,66 @@ getRMSE(n,resp2,pred2)
 getRMSE(n,resp2,pred2,na.rm = TRUE)
 ```
 
+###3.Write a function called getMAE() that follows the specifications of the getRMSE() function.
+
+```{r}
+getMAE<-function(n, resp, pred,...){
+dif <- abs(resp-pred)
+MAE <- mean(dif,...)
+return(MAE)
+}
+```
+
+
+
+###4. Run the following code to create some response values and predictions.Test your MAE function using this data.
+```{r}
+#Without Missing Values 
+getMAE(n,resp,pred)
+
+#With Missing Values
+getMAE(n,resp2,pred2)
+getMAE(n,resp2,pred2,na.rm = TRUE)
+```
+
+###5. Let’s create a wrapper function that can be used to get either or both metrics returned with a single function call. Do not rewrite your above two functions, call them inside the wrapper function (we would call the getRMSE() and getMAE() functions helper functions). When returning your values, give them appropriate names.
+
+```{r}
+calculating_wrapper <- function(n,resp,pred,getRMSE=TRUE, getMAE=TRUE,...){
+  if(is.vector(is.atomic(is.numeric(resp)))==FALSE){
+    force(stop("Stop Now"))
+  }
+    if(is.vector(is.atomic(is.numeric(pred)))==FALSE){
+   force(stop("Stop Now"))
+    }
+  if(getRMSE){
+    RMSE<-getRMSE(n,resp,pred,...)
+  }
+  if(getMAE){
+    MAE<- getMAE(n,resp,pred,...)
+  }
+  return(list(RMSE=RMSE,MAE=MAE))
+}
+```
+
+
+###6. Run the following code to create some response values and predictions.
+
+```{r}
+#Without Missing Values 
+calculating_wrapper(n,resp,pred)
+
+#With Missing Values
+calculating_wrapper(n,resp2,pred2)
+calculating_wrapper(n,resp2,pred2,na.rm = TRUE)
+```
 
 ##Task 3: Querying an API and tidy-style function 
 
+###1. Use GET() from the httr package to return information about a topic that you are interested in that has been in the news lately (store the result as an R object). 
+
+###2. Parse what is returned and find your way to the data frame that has the actual article information in it (check content). 
+
+###3. Now write a quick function that allows the user to easily query this API. The inputs to the function should be the title/subject to search for (string), a time period to search from (string - you’ll search from that time until the present), and an API key.
 
 
