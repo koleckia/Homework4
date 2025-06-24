@@ -92,11 +92,11 @@ getMAE(n,resp2,pred2,na.rm = TRUE)
 
 ```{r}
 calculating_wrapper <- function(n,resp,pred,getRMSE=TRUE, getMAE=TRUE,...){
-  if(is.vector(is.atomic(is.numeric(resp)))==FALSE){
-    force(stop("Stop Now"))
+  if(!is.numeric(resp) || !is.vector(resp) || !is.atomic((resp))){
+    stop("resp needs to be numeric vector")
   }
-    if(is.vector(is.atomic(is.numeric(pred)))==FALSE){
-   force(stop("Stop Now"))
+    if(!is.numeric(pred) || !is.vector(pred) || !is.atomic(pred)){
+   stop("pred needs to be a numeric vector")
     }
   if(getRMSE){
     RMSE<-getRMSE(n,resp,pred,...)
@@ -118,6 +118,13 @@ calculating_wrapper(n,resp,pred)
 #With Missing Values
 calculating_wrapper(n,resp2,pred2)
 calculating_wrapper(n,resp2,pred2,na.rm = TRUE)
+
+#Random Data Frame
+df <-data.frame(replicate(10,sample(0:1, 1000, rep = TRUE)))
+df2 <-data.frame(replicate(10,sample(0:1, 1000, rep = TRUE)))
+
+calculating_wrapper(1000,df,df2)
+calculating_wrapper(1000,resp,df2)
 ```
 
 ##Task 3: Querying an API and tidy-style function 
