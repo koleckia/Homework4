@@ -131,8 +131,52 @@ calculating_wrapper(1000,resp,df2)
 
 ###1. Use GET() from the httr package to return information about a topic that you are interested in that has been in the news lately (store the result as an R object). 
 
+```{r}
+install.packages('tidycensus')
+library(tidycensus)
+
+URL_ids <- "https://newsapi.org/v2/everything?q=NBA&apiKey=6b3329c07b8a4a5081c52478c13ed007"
+id_info <-httr::GET(URL_ids)
+str(id_info, max.level = 1)
+
+
+
+```
+
 ###2. Parse what is returned and find your way to the data frame that has the actual article information in it (check content). 
+
+
+```{r}
+install.packages('jsonlite')
+library(jsonlite)
+
+parsed <- fromJSON(rawToChar(id_info$content))
+content <- as_tibble(parsed$articles)
+content
+```
 
 ###3. Now write a quick function that allows the user to easily query this API. The inputs to the function should be the title/subject to search for (string), a time period to search from (string - you’ll search from that time until the present), and an API key.
 
+```{r}
 
+API_function <- function(subject,date,key){
+  URL <- paste0("https://newsapi.org/v2/everything?q=",
+               as.character(subject),
+               "&from=",
+               date,
+               "&apiKey=",
+               as.character(key))
+  print(URL)
+  URL_ids <- URL
+id_info <-httr::GET(URL_ids)
+str(id_info, max.level = 1)
+parsed <- fromJSON(rawToChar(id_info$content))
+return(parsed)
+API_tibble <- as_tibble(parsed$articles)
+API_tibble
+return(API_tibble)
+}
+
+API_function("nhl",2025-06-12,"6b3329c07b8a4a5081c52478c13ed007")
+API_function("heat",2025-06-12,"6b3329c07b8a4a5081c52478c13ed007")
+```
