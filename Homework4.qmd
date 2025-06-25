@@ -4,33 +4,42 @@ format: pdf
 editor: visual
 ---
 
-##Task 1: Conceptual Questions 
+## Task 1: Conceptual Questions 
 
-###1. What is the purpose of the lapply() function? What is the equivalent purrr function?
+### 1. What is the purpose of the lapply() function? What is the equivalent purrr function?
 
-The lapply() function applies any function to lists. The equivalent purr function is map().
+The lapply() function applies any function to a list. The equivalent purr function is map().
 
-###2. Suppose we have a list called my_list. Each element of the list is a numeric data frame (all columns are numeric). We want use lapply() to run the code cor(numeric_matrix, method = "kendall")on each element of the list. Write code to do this below! (I’m really trying to ask you how you specify method = "kendall" when calling lapply())
+### 2. Suppose we have a list called my_list. Each element of the list is a numeric data frame (all columns are numeric). We want use lapply() to run the code cor(numeric_matrix, method = "kendall")on each element of the list. Write code to do this below! (I’m really trying to ask you how you specify method = "kendall" when calling lapply())
 
 
 ```{r}
+#Create a numeric data frame
+df1 <- data.frame(a = runif(20), b = runif(20), c = runif(20))
+df2 <- data.frame(a = runif(10), b = runif(10), c = runif(10))
+df3 <- data.frame(a = runif(30), b = runif(30), c = runif(30))
+
+my_list <- list(df1, df2, df3)
+
+lapply(my_list,function(x) cor(x, method = "kendall"))
 
 ```
 
-###3. What are two advantages of using purrr functions instead of the BaseR apply family?
+### 3. What are two advantages of using purrr functions instead of the BaseR apply family?
 
-The two advantage of using the purrr function is the consistency between functions (i.e the first agrument to all map functions is the data).The purr fuction also has more functionality such as modify(), map2(), and imap().
+The two advantage of using the purrr function is the consistency between functions (i.e the first argument to all map functions is the data which is not the same as a apply function).The purr function also has more functionality such as modify(), map2(), and imap().
 
-###4. What is a side-effect function?
+### 4. What is a side-effect function?
 
-A side-effect functions don't return the modified agrument i.e. print(), write_csv(). 
+A side-effect functions don't return the modified argumen. Example functions would be print(), write_csv(). 
 
-###5. Why can you name a variable sd in a function and not cause any issues with the sd function?
+### 5. Why can you name a variable sd in a function and not cause any issues with the sd function?
 
+This is because when you write a new function, it creates it's own temporary environment when it executes the code. When the function is complete, the environment is gone. Therefore, in the temporary enviroment you can have a variable called sd and not cause issues with the sd function.
 
-##Task 2: Writing R functinos 
+## Task 2: Writing R functinos 
 
-###1. Write a basic function (call it getRMSE()) that takes in a vector of responses and a vector of predictions and outputs the RMSE.If a value is missing for the vector of responses (i.e. an NA is present), allow for additional arguments to the mean() function (elipses) that removes the NA values in the computation.
+### 1. Write a basic function (call it getRMSE()) that takes in a vector of responses and a vector of predictions and outputs the RMSE.If a value is missing for the vector of responses (i.e. an NA is present), allow for additional arguments to the mean() function (elipses) that removes the NA values in the computation.
 
 ```{r}
 getRMSE<-function(n, resp, pred,...){
@@ -41,7 +50,7 @@ return(RMSE)
 }
 ```
 
-###2. Test your RMSE function using this data. Repeat after replacing two of the response values with missing values (NA_real_).
+### 2. Test your RMSE function using this data. Repeat after replacing two of the response values with missing values (NA_real_).
 
 ```{r}
 #Without Missing Values 
@@ -58,15 +67,14 @@ n <- 100
 x <- runif(n)
 resp2 <- 3 + 10*x + rnorm(n)
 pred2 <- predict(lm(resp ~ x), data.frame(x))
-getRMSE(n,resp,pred)
 random_na <- sample(length(resp2),2)
 resp2[random_na]<- NA_real_
 pred2 <- predict(lm(resp2 ~ x), data.frame(x))
-getRMSE(n,resp2,pred2)
+getRMSE(n,resp2,pred2,)
 getRMSE(n,resp2,pred2,na.rm = TRUE)
 ```
 
-###3.Write a function called getMAE() that follows the specifications of the getRMSE() function.
+### 3.Write a function called getMAE() that follows the specifications of the getRMSE() function.
 
 ```{r}
 getMAE<-function(n, resp, pred,...){
@@ -78,7 +86,7 @@ return(MAE)
 
 
 
-###4. Run the following code to create some response values and predictions.Test your MAE function using this data.
+### 4. Run the following code to create some response values and predictions.Test your MAE function using this data.
 ```{r}
 #Without Missing Values 
 getMAE(n,resp,pred)
@@ -88,7 +96,7 @@ getMAE(n,resp2,pred2)
 getMAE(n,resp2,pred2,na.rm = TRUE)
 ```
 
-###5. Let’s create a wrapper function that can be used to get either or both metrics returned with a single function call. Do not rewrite your above two functions, call them inside the wrapper function (we would call the getRMSE() and getMAE() functions helper functions). When returning your values, give them appropriate names.
+### 5. Let’s create a wrapper function that can be used to get either or both metrics returned with a single function call. Do not rewrite your above two functions, call them inside the wrapper function (we would call the getRMSE() and getMAE() functions helper functions). When returning your values, give them appropriate names.
 
 ```{r}
 calculating_wrapper <- function(n,resp,pred,getRMSE=TRUE, getMAE=TRUE,...){
@@ -98,22 +106,25 @@ calculating_wrapper <- function(n,resp,pred,getRMSE=TRUE, getMAE=TRUE,...){
     if(!is.numeric(pred) || !is.vector(pred) || !is.atomic(pred)){
    stop("pred needs to be a numeric vector")
     }
+  results <-list()
   if(getRMSE){
-    RMSE<-getRMSE(n,resp,pred,...)
+    results$RMSE<-getRMSE(n,resp,pred,...)
   }
   if(getMAE){
-    MAE<- getMAE(n,resp,pred,...)
+    results$MAE<- getMAE(n,resp,pred,...)
   }
-  return(list(RMSE=RMSE,MAE=MAE))
+  return(results)
 }
 ```
 
 
-###6. Run the following code to create some response values and predictions.
+### 6. Run the following code to create some response values and predictions.
 
-```{r}
+```{r, error=TRUE}
 #Without Missing Values 
 calculating_wrapper(n,resp,pred)
+calculating_wrapper(n,resp,pred,getRMSE=FALSE)
+calculating_wrapper(n,resp,pred,getMAE=FALSE)
 
 #With Missing Values
 calculating_wrapper(n,resp2,pred2)
@@ -127,14 +138,16 @@ calculating_wrapper(1000,df,df2)
 calculating_wrapper(1000,resp,df2)
 ```
 
-##Task 3: Querying an API and tidy-style function 
+## Task 3: Querying an API and tidy-style function 
 
-###1. Use GET() from the httr package to return information about a topic that you are interested in that has been in the news lately (store the result as an R object). 
+### 1. Use GET() from the httr package to return information about a topic that you are interested in that has been in the news lately (store the result as an R object). 
+
+```{r,echo=FALSE,results='hide'}
+#install.packages('tidycensus')
+#library(tidycensus)
+```
 
 ```{r}
-install.packages('tidycensus')
-library(tidycensus)
-
 URL_ids <- "https://newsapi.org/v2/everything?q=NBA&apiKey=6b3329c07b8a4a5081c52478c13ed007"
 id_info <-httr::GET(URL_ids)
 str(id_info, max.level = 1)
@@ -143,19 +156,24 @@ str(id_info, max.level = 1)
 
 ```
 
-###2. Parse what is returned and find your way to the data frame that has the actual article information in it (check content). 
+### 2. Parse what is returned and find your way to the data frame that has the actual article information in it (check content). 
 
+
+```{r,echo=FALSE, results='hide'}
+#install.packages('jsonlite')
+library(jsonlite)
+library(tidyverse)
+```
 
 ```{r}
-install.packages('jsonlite')
-library(jsonlite)
-
 parsed <- fromJSON(rawToChar(id_info$content))
 content <- as_tibble(parsed$articles)
 content
 ```
 
-###3. Now write a quick function that allows the user to easily query this API. The inputs to the function should be the title/subject to search for (string), a time period to search from (string - you’ll search from that time until the present), and an API key.
+
+
+### 3. Now write a quick function that allows the user to easily query this API. The inputs to the function should be the title/subject to search for (string), a time period to search from (string - you’ll search from that time until the present), and an API key.
 
 ```{r}
 
@@ -171,12 +189,9 @@ API_function <- function(subject,date,key){
 id_info <-httr::GET(URL_ids)
 str(id_info, max.level = 1)
 parsed <- fromJSON(rawToChar(id_info$content))
-return(parsed)
 API_tibble <- as_tibble(parsed$articles)
-API_tibble
 return(API_tibble)
 }
 
 API_function("nhl",2025-06-12,"6b3329c07b8a4a5081c52478c13ed007")
-API_function("heat",2025-06-12,"6b3329c07b8a4a5081c52478c13ed007")
 ```
